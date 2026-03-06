@@ -73,9 +73,9 @@ Route::post('/admin/login', [AuthController::class, 'adminLogin']);
 |--------------------------------------------------
 */
 
-Route::prefix('admin')
-    ->middleware(['auth', 'role:admin'])
-    ->group(function () {
+// Route::prefix('admin')
+//     ->middleware(['auth', 'role:admin'])
+//     ->group(function () {
 
         // 勤怠一覧
         Route::get(
@@ -112,4 +112,4 @@ Route::prefix('admin')
             '/stamp_correction_request/approve/{request}',
             [AdminStampCorrectionRequestController::class, 'approve']
         );
-});
+// });

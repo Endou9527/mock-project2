@@ -15,6 +15,12 @@ class UsersTableSeeder extends Seeder
      */
     public function run()
     {
-        User::factory()->count(15)->create();
+        $param = [
+            'name' => '管理　太郎',
+            'email' => 'aaa@jp',
+            'password' => '123456789',
+            'role' => 'admin'
+        ];
+        DB::table('users')->insert($param);
     }
 }
