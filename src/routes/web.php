@@ -1,9 +1,12 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\ProductController;
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\UserController;
+use App\Http\Controllers\AttendanceController;
+use App\Http\Controllers\StampCorrectionRequestController;
+use App\Http\Controllers\AdminAttendanceController;
+use App\Http\Controllers\AdminStaffController;
+use App\Http\Controllers\AdminStampCorrectionRequestController;
 
 /*
 |--------------------------------------------------------------------------
@@ -16,42 +19,97 @@ use App\Http\Controllers\UserController;
 |
 */
 
-// 商品一覧（ログアウト状態）￥表示
-Route::get('/', [ProductController::class,'indexGuest']);
-// 商品一覧（ログイン状態）￥表示
-Route::middleware('auth')->group(function(){
-  Route::get('/?tab=mylist',[ProductController::class,'index']);
+/*
+|--------------------------------------------------
+| 未ログイン
+|--------------------------------------------------
+*/
+
+// 会員登録
+Route::get('/register', [AuthController::class, 'showRegister']);
+Route::post('/register', [AuthController::class, 'register']);
+
+// 一般ログイン
+Route::get('/login', [AuthController::class, 'showLogin']);
+Route::post('/login', [AuthController::class, 'login']);
+
+// 管理者ログイン
+Route::get('/admin/login', [AuthController::class, 'showAdminLogin']);
+Route::post('/admin/login', [AuthController::class, 'adminLogin']);
+
+/*
+|--------------------------------------------------
+| 一般ユーザ
+|--------------------------------------------------
+*/
+
+// Route::middleware(['auth', 'role:user'])->group(function () {
+
+    // 打刻画面
+    Route::get('/attendance', [AttendanceController::class, 'index']);
+
+    // 勤怠一覧
+    Route::get('/attendance/list', [AttendanceController::class, 'list']);
+
+    // 勤怠詳細
+    Route::get('/attendance/detail/{id}', [AttendanceController::class, 'show']);
+
+    // 修正申請一覧
+    Route::get(
+        '/stamp_correction_request/list',
+        [StampCorrectionRequestController::class, 'list']
+    );
+
+    // 修正申請送信
+    Route::post(
+        '/stamp_correction_request/{attendance}',
+        [StampCorrectionRequestController::class, 'store']
+    );
+// });
+
+/*
+|--------------------------------------------------
+| 管理者
+|--------------------------------------------------
+*/
+
+Route::prefix('admin')
+    ->middleware(['auth', 'role:admin'])
+    ->group(function () {
+
+        // 勤怠一覧
+        Route::get(
+            '/attendance/list',
+            [AdminAttendanceController::class, 'list']
+        );
+
+        // 勤怠詳細
+        Route::get(
+            '/attendance/{id}',
+            [AdminAttendanceController::class, 'show']
+        );
+
+        // スタッフ一覧
+        Route::get(
+            '/staff/list',
+            [StaffController::class, 'index']
+        );
+
+        // スタッフ別勤怠一覧（月次）
+        Route::get(
+            '/attendance/staff/{id}',
+            [AdminAttendanceController::class, 'staffAttendance']
+        );
+
+        // 修正申請一覧
+        Route::get(
+            '/stamp_correction_request/list',
+            [AdminStampCorrectionRequestController::class, 'list']
+        );
+
+        // 修正申請承認
+        Route::post(
+            '/stamp_correction_request/approve/{request}',
+            [AdminStampCorrectionRequestController::class, 'approve']
+        );
 });
-// メール認証画面誘導￥表示
-Route::get('/register/mail_setting',[AuthController::class,'showEmailVerificationNotice']);
-// // 会員登録￥実行
-// Route::post('/register',[AuthController::class,'register']);
-// // ログイン￥実行
-// Route::post('/login',[AuthController::class,'login']);
-// 商品詳細￥表示
-Route::get('/item/{item_id}',[ProductController::class,'show']);
-// 商品購入関連
-Route::middleware('auth')->group(function () {
-  // 商品購入画面￥表示
-  Route::get('/purchase/{item_id}',[ProductController::class,'purchaseForm']);
-  // 商品購入￥実行
-  Route::post('/purchase/{item_id}',[ProductController::class,'purchase']);
-});
-// 送付先住所変更画面￥表示
-Route::get('/purchase/address/{item_id}',[AuthController::class,'editAddress']);
-// 送付先住所変更￥実行
-Route::post('/purchase/address/{item_id}',[AuthController::class,'updateAddress']);
-// 商品出品￥表示
-Route::get('/sell',[ProductController::class,'create'])->middleware('auth');
-// 商品出品￥実行
-Route::post('/sell',[ProductController::class,'store'])->middleware('auth');
-// プロフィール画面￥表示
-Route::get('/mypage',[UserController::class,'showProfile']);
-// プロフィール編集画面￥表示
-Route::get('/mypage/profile',[UserController::class,'editProfile']);
-// プロフィール編集￥実行
-Route::post('/mypage/profile',[UserController::class,'updateProfile']);
-// 購入した商品一覧￥表示
-Route::get('/mypage?page=buy',[UserController::class,'purchasedList']);
-// 出品した商品一覧￥表示
-Route::get('/mypage?page=sell',[UserController::class,'soldList']);

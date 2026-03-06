@@ -3,7 +3,7 @@
 @section('title' , 'ログイン画面')
 
 @section('css')
-<link rel="stylesheet" href="{{ asset('css/mypage.css') }}">
+<link rel="stylesheet" href="{{ asset('css/login.css') }}">
 @endsection
 
 @section('header_inner')
